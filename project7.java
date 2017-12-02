@@ -33,16 +33,28 @@ import java.util.*;
  */
 public class project7 extends Application {
     File temp,temp2;
-    boolean tester=false;
+    boolean testIn1=false;
+    boolean testIn2=false;
     LinkedList<String> ll;
             
     @Override
     public void start(Stage primaryStage)throws Exception {
         HBox hbox=new HBox();
-        Button btn = new Button();
+        HBox init=new HBox();
+        Button commit = new Button();
         Button quit=new Button();
         GridPane gridLeft=new GridPane();
         GridPane gridRight=new GridPane();
+        GridPane begin=new GridPane();
+        
+        //Start screen format
+        init.setStyle("-fx-background-color: #b8d6c8");
+        init.setAlignment(CENTER);
+        begin.setPadding(new Insets(10,10,10,10));
+        begin.setVgap(8);
+        begin.setHgap(10);
+        
+        //second screen formatting
         hbox.setStyle("-fx-background-color: #b8d6c8");//gray #adadad
         
         //Left Grid formatting
@@ -67,11 +79,12 @@ public class project7 extends Application {
         gridLeft.setConstraints(FileInput,0,3);
         
         //Commit button for file imports(Left Grid)
-        btn.setText("Import");
-        gridLeft.setConstraints(btn,0,5);
+        commit.setText("Import");
+        gridLeft.setConstraints(commit,0,5);
         
+        //Quit Button
         quit.setText("Quit");
-        gridLeft.setConstraints(quit,0,8);
+        gridLeft.setConstraints(quit,0,2);
         quit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
                     public void handle(ActionEvent event){
@@ -79,15 +92,15 @@ public class project7 extends Application {
                     }
             });
         
-       //Dictionary List Label(Left Grid)
+        //Dictionary List Label(Left Grid)
         Label dictListLabel=new Label("Dictionary:");
-        gridLeft.setConstraints(dictListLabel,0,6);
+        gridLeft.setConstraints(dictListLabel,0,0);
         
         //Setting Dictionary List frame (Left Grid)
         ObservableList<String> dictionary=FXCollections.observableArrayList();
         ListView dictList=new ListView(dictionary);
-        dictList.setMaxSize(300, 400);
-        gridLeft.setConstraints(dictList,0,7);
+        dictList.setMinSize(200, 350);
+        gridLeft.setConstraints(dictList,0,1);
         
         //Right Grid Formatting
         gridRight.setPadding(new Insets(10, 10, 10, 10));
@@ -96,7 +109,7 @@ public class project7 extends Application {
         
         //Imported File Text area(Right Grid)
         TextArea inputFileText=new TextArea();
-        inputFileText.setMinSize(600,400);
+        inputFileText.setMinSize(600,550);
         gridRight.setConstraints(inputFileText,0,1);
         
         //Imported File Label(Right Grid)
@@ -105,58 +118,70 @@ public class project7 extends Application {
         
         //Label for stats(Right Grid)
         Label statsLabel=new Label("Words Checked:");
-        gridRight.setConstraints(statsLabel,0,2);
+        gridLeft.setConstraints(statsLabel,0,2);
         
-        //Statistics for spellchecker(Right Grid)
+        //Statistics for spellchecker(Left Grid)
         ListView stats=new ListView();
         stats.setMinSize(200,100);
-        gridRight.setConstraints(stats,0,3);
+        gridLeft.setConstraints(stats,0,3);
         
         //adding components to grids
-        gridLeft.getChildren().addAll(dictInputLabel, dictInput, FileLabel, FileInput, btn,dictListLabel, dictList, quit);
-        gridRight.getChildren().addAll(inputBox, inputFileText, statsLabel, stats);
+        gridLeft.getChildren().addAll(dictListLabel, dictList,statsLabel,stats );
+        gridRight.getChildren().addAll(inputBox, inputFileText,  quit);
+        begin.getChildren().addAll(dictInputLabel, dictInput, FileLabel, FileInput, commit);
         
         //adding grids to hbox
         hbox.getChildren().addAll(gridLeft, gridRight);
+        init.getChildren().addAll(begin);
         
         StackPane root = new StackPane();
-        root.getChildren().addAll(hbox);
+        StackPane root2=new StackPane();
         
-        Scene scene = new Scene(root, 900, 650);
+        root.getChildren().addAll(init);
+        root2.getChildren().addAll(hbox);
         
+        Scene scene1 = new Scene(root, 400, 200);
+        Scene scene2 = new Scene(root2, 900, 650);
         
         primaryStage.setTitle("SpellChecker");
-        primaryStage.setScene(scene);
+        primaryStage.setScene(scene1);
         primaryStage.show();
         
         //Commit button action event (Left Grid)
-        btn.setOnAction(new EventHandler<ActionEvent>() {                   
+        commit.setOnAction(new EventHandler<ActionEvent>() {                   
             @Override
             public void handle(ActionEvent event) {
                 try{
-                temp=new File(dictInput.getText());
-                Scanner stdin=new Scanner(temp);
-                temp2=new File(FileInput.getText());
-                Scanner stdin2=new Scanner(temp2);
-                ll=new LinkedList();
-                
-                if(temp!=null){
-                    while(stdin.hasNext()){
-                        ll.add(stdin.next());
+                    primaryStage.setScene(scene2);
+                    testIn1=dictInput.hasProperties();
+                    testIn2=FileInput.hasProperties();
+                    ll=new LinkedList();
+                                    
+                    if(testIn1==true){
+                        temp=new File(dictInput.getText());
+                        Scanner stdin=new Scanner(temp);
+                        while(stdin.hasNext()){
+                            ll.add(stdin.next());
+                        }
+                    
+                        for(int i=0;i<ll.size();i++){
+                            dictionary.add(ll.get(i));
+                        }
                     }
-                    System.out.println(ll.size());
-                    for(int i=0;i<ll.size();i++){
-                        dictionary.add(ll.get(i));
-                    }
-                }
-                if(temp2!=null){
-                    for(int j=0;stdin2.hasNextLine();j++){
-                        inputFileText.appendText(stdin2.nextLine() + "\n");
-                    }
-                }
+                    
+                    if(testIn2==true){
+                        temp2=new File(FileInput.getText());
+                        Scanner stdin2=new Scanner(temp2);
+                        for(int j=0;stdin2.hasNextLine();j++){
+                            inputFileText.appendText(stdin2.nextLine() + "\n");
+                        }
+                    }                
                 
+                }catch (Exception e)
+                {
+                System.out.println(e);
+                };
                 
-                }catch (Exception e){};
             }
         });
     }

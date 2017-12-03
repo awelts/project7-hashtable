@@ -5,6 +5,8 @@
  */
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,6 +28,8 @@ import static javafx.geometry.Pos.*;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import java.util.*;
+import javafx.scene.control.ComboBox;
+
 
 /**
  *
@@ -35,7 +39,9 @@ public class project7 extends Application {
     File temp,temp2;
     boolean testIn1=false;
     boolean testIn2=false;
-    LinkedList<String> ll;
+    LinkedList<String> dictLL;
+    String s1,s2;
+    ComboBox<String> cb,cb2;
             
     @Override
     public void start(Stage primaryStage)throws Exception {
@@ -43,10 +49,21 @@ public class project7 extends Application {
         HBox init=new HBox();
         Button commit = new Button();
         Button quit=new Button();
+        Button quit2=new Button();
         GridPane gridLeft=new GridPane();
         GridPane gridRight=new GridPane();
         GridPane begin=new GridPane();
         
+        
+        //File Filter and finder
+        File[] files;
+        files=finder("/home/awelts/NetBeansProjects/project7-hashtables/");
+        LinkedList filesLL=new LinkedList();
+        
+        for(int i=0;i<files.length;i++){
+            filesLL.add(files[i].getName());
+        }
+                
         //Start screen format
         init.setStyle("-fx-background-color: #b8d6c8");
         init.setAlignment(CENTER);
@@ -62,30 +79,51 @@ public class project7 extends Application {
         gridLeft.setVgap(8);
         gridLeft.setHgap(10);
         
-        //Dictionary Label(Left Grid)
+        //ComboBox Dictionary..pls let this work
+        cb=new ComboBox<>();
+        cb.getItems().addAll(filesLL);
+        begin.setConstraints(cb,0,1);
+        cb.setEditable(true);
+        
+        cb2=new ComboBox<>();
+        cb2.getItems().addAll(filesLL);
+        begin.setConstraints(cb2,0,3);
+        cb2.setEditable(true);
+        
+        //Dictionary Label(Scene 1)
         Label dictInputLabel=new Label("Dictionary input file:");
-        gridLeft.setConstraints(dictInputLabel,0,0);
+        begin.setConstraints(dictInputLabel,0,0);
         
-        //Dictionary Text field(Left Grid)
+        //Dictionary Text field(Scene 1)
         TextField dictInput=new TextField();
-        gridLeft.setConstraints(dictInput,0,1);
+        begin.setConstraints(dictInput,0,1);
         
-        //File to be checked label(Left Grid)
+        //File to be checked label(Scene 1)
         Label FileLabel=new Label("Filename for file to be checked:");
-        gridLeft.setConstraints(FileLabel,0,2);
+        begin.setConstraints(FileLabel,0,2);
         
-        //File to be checked input(Left Grid)
+        //File to be checked input(Scene 1)
         TextField FileInput=new TextField();
-        gridLeft.setConstraints(FileInput,0,3);
+        begin.setConstraints(FileInput,0,3);
         
-        //Commit button for file imports(Left Grid)
+        //Commit button for file imports(Scene 1)
         commit.setText("Import");
-        gridLeft.setConstraints(commit,0,5);
+        begin.setConstraints(commit,0,5);
         
-        //Quit Button
+        //Quit Button (Second Screen)
         quit.setText("Quit");
         gridLeft.setConstraints(quit,0,2);
         quit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+                    public void handle(ActionEvent event){
+                      System.exit(0);  
+                    }
+            });
+        
+        //Quit button (beginning screen)
+        quit2.setText("Quit");
+        begin.setConstraints(quit2,1,5);
+        quit2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
                     public void handle(ActionEvent event){
                       System.exit(0);  
@@ -117,18 +155,19 @@ public class project7 extends Application {
         gridRight.setConstraints(inputBox,0,0);
         
         //Label for stats(Right Grid)
-        Label statsLabel=new Label("Words Checked:");
+        Label statsLabel=new Label("Words Mispelled:");
         gridLeft.setConstraints(statsLabel,0,2);
         
         //Statistics for spellchecker(Left Grid)
-        ListView stats=new ListView();
+        ObservableList<String> statList=FXCollections.observableArrayList();
+        ListView stats=new ListView(statList);
         stats.setMinSize(200,100);
         gridLeft.setConstraints(stats,0,3);
         
         //adding components to grids
         gridLeft.getChildren().addAll(dictListLabel, dictList,statsLabel,stats );
         gridRight.getChildren().addAll(inputBox, inputFileText,  quit);
-        begin.getChildren().addAll(dictInputLabel, dictInput, FileLabel, FileInput, commit);
+        begin.getChildren().addAll(dictInputLabel, cb, FileLabel, cb2, commit, quit2);
         
         //adding grids to hbox
         hbox.getChildren().addAll(gridLeft, gridRight);
@@ -153,24 +192,26 @@ public class project7 extends Application {
             public void handle(ActionEvent event) {
                 try{
                     primaryStage.setScene(scene2);
-                    testIn1=dictInput.hasProperties();
-                    testIn2=FileInput.hasProperties();
-                    ll=new LinkedList();
-                                    
+                    testIn1=cb.hasProperties();
+                    testIn2=cb2.hasProperties();
+                    System.out.println(testIn1+" "+testIn2);
+                    dictLL=new LinkedList();
+                                        
                     if(testIn1==true){
-                        temp=new File(dictInput.getText());
+                        temp=new File(cb.getValue());
                         Scanner stdin=new Scanner(temp);
                         while(stdin.hasNext()){
-                            ll.add(stdin.next());
+                            dictLL.add(stdin.next());
                         }
                     
-                        for(int i=0;i<ll.size();i++){
-                            dictionary.add(ll.get(i));
+                        for(int i=0;i<dictLL.size();i++){
+                            dictionary.add(dictLL.get(i));
+                            
                         }
                     }
                     
                     if(testIn2==true){
-                        temp2=new File(FileInput.getText());
+                        temp2=new File(cb2.getValue());
                         Scanner stdin2=new Scanner(temp2);
                         for(int j=0;stdin2.hasNextLine();j++){
                             inputFileText.appendText(stdin2.nextLine() + "\n");
@@ -184,6 +225,16 @@ public class project7 extends Application {
                 
             }
         });
+    }
+    
+    public File[] finder( String dirName){
+       File dir = new File(dirName);
+
+       return dir.listFiles(new FilenameFilter() { 
+                public boolean accept(File dir, String filename)
+                    { return filename.endsWith(".txt"); }
+        } );
+
     }
     
     

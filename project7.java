@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,16 +26,11 @@ import javafx.scene.layout.VBox;
 import java.util.*;
 import javafx.scene.control.ComboBox;
 
-
-/**
- *
- * @author awelts
- */
 public class project7 extends Application {
     File temp,temp2;
     boolean testIn1=false;
     boolean testIn2=false;
-    LinkedList<String> dictLL;
+    LinkedList<String> dictLL, statsLL;
     String s1,s2;
     ComboBox<String> cb,cb2;
             
@@ -50,14 +41,20 @@ public class project7 extends Application {
         Button commit = new Button();
         Button quit=new Button();
         Button quit2=new Button();
+        Button check=new Button();
+        Button back=new Button();
         GridPane gridLeft=new GridPane();
         GridPane gridRight=new GridPane();
         GridPane begin=new GridPane();
+        StackPane pane1 = new StackPane();
+        StackPane pane2=new StackPane();
+        Scene scene1 = new Scene(pane1, 400, 200);
+        Scene scene2 = new Scene(pane2, 900, 650);
         
         
         //File Filter and finder
         File[] files;
-        files=finder("/home/awelts/NetBeansProjects/project7-hashtables/");
+        files=finder("/home/awelts/Documents/LinearDataStructures Projects/project7-hashtables/");
         LinkedList filesLL=new LinkedList();
         
         for(int i=0;i<files.length;i++){
@@ -69,10 +66,10 @@ public class project7 extends Application {
         init.setAlignment(CENTER);
         begin.setPadding(new Insets(10,10,10,10));
         begin.setVgap(8);
-        begin.setHgap(10);
+		begin.setHgap(10); 
         
         //second screen formatting
-        hbox.setStyle("-fx-background-color: #b8d6c8");//gray #adadad
+        hbox.setStyle("-fx-background-color: #b8d6c8");//gray:#adadad lt.blue:#b8d6c8 blue:#359aff
         
         //Left Grid formatting
         gridLeft.setPadding(new Insets(10, 10, 10, 10));
@@ -84,6 +81,7 @@ public class project7 extends Application {
         cb.getItems().addAll(filesLL);
         begin.setConstraints(cb,0,1);
         cb.setEditable(true);
+        //cb.setValue("SpellCheckDictionary.txt");
         
         cb2=new ComboBox<>();
         cb2.getItems().addAll(filesLL);
@@ -93,19 +91,11 @@ public class project7 extends Application {
         //Dictionary Label(Scene 1)
         Label dictInputLabel=new Label("Dictionary input file:");
         begin.setConstraints(dictInputLabel,0,0);
-        
-        //Dictionary Text field(Scene 1)
-        TextField dictInput=new TextField();
-        begin.setConstraints(dictInput,0,1);
-        
+                
         //File to be checked label(Scene 1)
         Label FileLabel=new Label("Filename for file to be checked:");
         begin.setConstraints(FileLabel,0,2);
-        
-        //File to be checked input(Scene 1)
-        TextField FileInput=new TextField();
-        begin.setConstraints(FileInput,0,3);
-        
+  
         //Commit button for file imports(Scene 1)
         commit.setText("Import");
         begin.setConstraints(commit,0,5);
@@ -113,6 +103,7 @@ public class project7 extends Application {
         //Quit Button (Second Screen)
         quit.setText("Quit");
         gridLeft.setConstraints(quit,0,2);
+        quit.setTranslateX(270);
         quit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
                     public void handle(ActionEvent event){
@@ -122,7 +113,8 @@ public class project7 extends Application {
         
         //Quit button (beginning screen)
         quit2.setText("Quit");
-        begin.setConstraints(quit2,1,5);
+        begin.setConstraints(quit2,0,5);
+        quit2.setTranslateX(70);
         quit2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
                     public void handle(ActionEvent event){
@@ -131,7 +123,7 @@ public class project7 extends Application {
             });
         
         //Dictionary List Label(Left Grid)
-        Label dictListLabel=new Label("Dictionary:");
+		Label dictListLabel=new Label("Dictionary: ");
         gridLeft.setConstraints(dictListLabel,0,0);
         
         //Setting Dictionary List frame (Left Grid)
@@ -147,7 +139,7 @@ public class project7 extends Application {
         
         //Imported File Text area(Right Grid)
         TextArea inputFileText=new TextArea();
-        inputFileText.setMinSize(600,550);
+        inputFileText.setMinSize(600,580);
         gridRight.setConstraints(inputFileText,0,1);
         
         //Imported File Label(Right Grid)
@@ -162,26 +154,55 @@ public class project7 extends Application {
         ObservableList<String> statList=FXCollections.observableArrayList();
         ListView stats=new ListView(statList);
         stats.setMinSize(200,100);
-        gridLeft.setConstraints(stats,0,3);
+		gridLeft.setConstraints(stats,0,3);
+		statList.addAll("the","dog","amend");
+		/*stats.setOnAction(new EventHandler<ActionEvent>(){
+			@Override
+				public void handle(ActionEvent event){
+					inputFileText.
+				}
+		});*/
+        
+        //Checker button for second scene
+        check.setText("Check for errors");
+        gridRight.setConstraints(check,0,2);
+        check.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+                    public void handle(ActionEvent event){
+                      statList.clear();
+                      statsLL=new LinkedList();
+                      
+                      // checking function for spelling errors
+                      
+                    }
+            });
+        
+        //Back button to file selection
+        back.setText("Back to file selection");
+        gridRight.setConstraints(back,0,2);
+        back.setTranslateX(120);
+        back.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+                    public void handle(ActionEvent event){
+                      primaryStage.setScene(scene1);
+                    }
+            });
+        
         
         //adding components to grids
         gridLeft.getChildren().addAll(dictListLabel, dictList,statsLabel,stats );
-        gridRight.getChildren().addAll(inputBox, inputFileText,  quit);
+        gridRight.getChildren().addAll(inputBox, inputFileText, check, back, quit);
         begin.getChildren().addAll(dictInputLabel, cb, FileLabel, cb2, commit, quit2);
         
         //adding grids to hbox
         hbox.getChildren().addAll(gridLeft, gridRight);
         init.getChildren().addAll(begin);
+                
+        //setting stackpanes
+        pane1.getChildren().addAll(init);
+        pane2.getChildren().addAll(hbox);
         
-        StackPane root = new StackPane();
-        StackPane root2=new StackPane();
-        
-        root.getChildren().addAll(init);
-        root2.getChildren().addAll(hbox);
-        
-        Scene scene1 = new Scene(root, 400, 200);
-        Scene scene2 = new Scene(root2, 900, 650);
-        
+        //setting stage
         primaryStage.setTitle("SpellChecker");
         primaryStage.setScene(scene1);
         primaryStage.show();
@@ -191,17 +212,20 @@ public class project7 extends Application {
             @Override
             public void handle(ActionEvent event) {
                 try{
+                    inputFileText.clear();
+                    dictionary.clear();
                     primaryStage.setScene(scene2);
                     testIn1=cb.hasProperties();
                     testIn2=cb2.hasProperties();
                     System.out.println(testIn1+" "+testIn2);
                     dictLL=new LinkedList();
+                    
                                         
                     if(testIn1==true){
                         temp=new File(cb.getValue());
-                        Scanner stdin=new Scanner(temp);
-                        while(stdin.hasNext()){
-                            dictLL.add(stdin.next());
+                        Scanner in1=new Scanner(temp);
+                        while(in1.hasNext()){
+                            dictLL.add(in1.next());
                         }
                     
                         for(int i=0;i<dictLL.size();i++){
@@ -212,9 +236,9 @@ public class project7 extends Application {
                     
                     if(testIn2==true){
                         temp2=new File(cb2.getValue());
-                        Scanner stdin2=new Scanner(temp2);
-                        for(int j=0;stdin2.hasNextLine();j++){
-                            inputFileText.appendText(stdin2.nextLine() + "\n");
+                        Scanner in2=new Scanner(temp2);
+                        for(int j=0;in2.hasNextLine();j++){
+                            inputFileText.appendText(in2.nextLine() + "\n");
                         }
                     }                
                 

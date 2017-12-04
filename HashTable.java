@@ -2,6 +2,7 @@ import java.lang.Math;
 import java.util.Vector;
 import java.io.File;
 import java.util.Scanner;
+import java.lang.Math;
 
 public class HashTable{
 	private int num_ele;
@@ -43,6 +44,7 @@ public class HashTable{
 	}
 	public void insert(String toHash)
 	{
+		//System.out.print(toHash+"=");
 		if (!contains(toHash, false))
 		{
 			num_ele++;
@@ -53,23 +55,19 @@ public class HashTable{
 	private int hashValue(String toHash, boolean print)
 	{
 		double result=0;
-		toHash=toHash.toLowerCase();
-		for (int j=0; j <= toHash.length(); j+=4)
+		//toHash=toHash.toLowerCase();
+		for (int i=0; i < toHash.length(); ++i)
 		{
-			for (int i=0; i < 4; ++i)
-			{
-				if (i+j >= toHash.length())
-					return (int)Math.abs((result%size));
-				result+=(Character.getNumericValue(toHash.charAt(i+j))-10)*powers[i];
-			}
+			result+=(toHash.charAt(i)+99)*Math.pow(10, i+1);
 		}
+		result-=3*(toHash.length());
 		if (print) System.out.println(result);
-		return Math.abs((int)(result%size));
+		return Math.abs((int)(result%(size)));
 	}
 
 	public boolean contains(String toFind, boolean print)
 	{
-		if (print) System.out.printf("%s (%d)%n",table[hashValue(toFind, print)],hashValue(toFind, print));
+		if (print) System.out.printf("%s (%d)%n",table[hashValue(toFind, false)],hashValue(toFind, false));
 		return !(table[hashValue(toFind, print)].equals(""));
 	}
 

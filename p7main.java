@@ -13,9 +13,9 @@ public class p7main{
 		wordList = new Vector<String>();
 		Scanner stdin = new Scanner(System.in);
 		System.out.println("What's the dictionary file?");
-		loadNewDictionaryFile(stdin.next());
+		loadNewDictionaryFile("dict.txt");
 		System.out.println("What's the file you want to test?");
-		loadTestFile(stdin.next());
+		loadTestFile("file.txt");
 
 		stdin.close();
 	}
@@ -61,7 +61,8 @@ public class p7main{
 		{
 			ht.insert(temp.get(i));
 		}
-		System.out.printf("%d entries%n", ht.Count());
+		System.out.printf("%d entries%n", temp.size());
+		System.out.printf("%d went through%n", ht.Count());
 	}
 
 }

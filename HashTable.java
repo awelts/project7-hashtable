@@ -7,7 +7,6 @@ import java.lang.Math;
 public class HashTable{
 	private int num_ele;
 	String[] table;
-	private int[] powers;
 	private int size;
 	public HashTable()
 	{
@@ -32,11 +31,6 @@ public class HashTable{
 	{
 		table = new String[(int)size];
 		num_ele=0;
-		powers= new int[4];
-		powers[0]=29803;
-		powers[1]=1009;
-		powers[2]=31;
-		powers[3]=3;
 		for (int i=0; i < size; ++i)
 		{
 			table[i]="";

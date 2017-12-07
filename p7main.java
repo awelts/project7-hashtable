@@ -9,13 +9,12 @@ public class p7main{
 	static Vector<String> wordList;
 
 	public static void main(String[] args) throws Exception{
-		ht = new HashTable();
 		wordList = new Vector<String>();
 		Scanner stdin = new Scanner(System.in);
-		System.out.println("What's the dictionary file?");
+		//System.out.println("What's the dictionary file?");
 		loadNewDictionaryFile("dict.txt");
-		System.out.println("What's the file you want to test?");
-		loadTestFile("file.txt");
+		//System.out.println("What's the file you want to test?");
+		loadTestFile("BoR.txt");
 
 		stdin.close();
 	}
@@ -28,13 +27,13 @@ public class p7main{
 		{
 			wordList.add(in.next());
 		}
-		System.out.printf("%d entries read%n", wordList.size());
+		//System.out.printf("%d entries read%n", wordList.size());
 		for (int i=0; i < wordList.size(); ++i)
 		{
 			System.out.printf("%s=",wordList.get(i));
-			if (!ht.contains(wordList.get(i), true))
+			if (!ht.contains(wordList.get(i), false))
 			{
-				System.out.println(wordList.get(i)+" was not found in the dictionary");
+				//System.out.println(wordList.get(i)+" was not found in the dictionary");
 				wrong++;
 			}
 			//else System.out.println(wordList.get(i)+" was found");
@@ -63,6 +62,7 @@ public class p7main{
 		}
 		System.out.printf("%d entries%n", temp.size());
 		System.out.printf("%d went through%n", ht.Count());
+		System.out.printf("%d failed%n", temp.size()-ht.Count());
 	}
 
 }

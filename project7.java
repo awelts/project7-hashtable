@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -12,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
@@ -30,9 +30,17 @@ public class project7 extends Application {
     File temp,temp2;
     boolean testIn1=false;
     boolean testIn2=false;
-    LinkedList<String> dictLL, statsLL;
+    static LinkedList<String> dictLL, statsLL;
     String s1,s2;
-    ComboBox<String> cb,cb2;
+	static ComboBox<String> cb,cb2;
+	static HashTable ht;
+	static File hashDict;
+	static File testFile;
+	static Vector<String> wordList;
+	static int wrong=0;
+	static ObservableList<String> statList;
+	static ObservableList<String> dictionary;
+	static ListView stats;
             
     @Override
     public void start(Stage primaryStage)throws Exception {
@@ -82,7 +90,7 @@ public class project7 extends Application {
         begin.setConstraints(cb,0,1);
         cb.setEditable(true);
         //cb.setValue("SpellCheckDictionary.txt");
-        
+	
         cb2=new ComboBox<>();
         cb2.getItems().addAll(filesLL);
         begin.setConstraints(cb2,0,3);
@@ -103,7 +111,7 @@ public class project7 extends Application {
         //Quit Button (Second Screen)
         quit.setText("Quit");
         gridLeft.setConstraints(quit,0,2);
-        quit.setTranslateX(270);
+        quit.setTranslateX(150);
         quit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
                     public void handle(ActionEvent event){
@@ -127,7 +135,7 @@ public class project7 extends Application {
         gridLeft.setConstraints(dictListLabel,0,0);
         
         //Setting Dictionary List frame (Left Grid)
-        ObservableList<String> dictionary=FXCollections.observableArrayList();
+        dictionary=FXCollections.observableArrayList();
         ListView dictList=new ListView(dictionary);
         dictList.setMinSize(200, 350);
         gridLeft.setConstraints(dictList,0,1);
@@ -140,8 +148,9 @@ public class project7 extends Application {
         //Imported File Text area(Right Grid)
         TextArea inputFileText=new TextArea();
         inputFileText.setMinSize(600,580);
-        gridRight.setConstraints(inputFileText,0,1);
-        
+		gridRight.setConstraints(inputFileText,0,1);
+		inputFileText.setWrapText(true);
+ 	        
         //Imported File Label(Right Grid)
         Label inputBox=new Label("Imported File:");
         gridRight.setConstraints(inputBox,0,0);
@@ -151,36 +160,20 @@ public class project7 extends Application {
         gridLeft.setConstraints(statsLabel,0,2);
         
         //Statistics for spellchecker(Left Grid)
-        ObservableList<String> statList=FXCollections.observableArrayList();
-        ListView stats=new ListView(statList);
+    	statList=FXCollections.observableArrayList();
+        stats=new ListView(statList);
         stats.setMinSize(200,100);
 		gridLeft.setConstraints(stats,0,3);
-		statList.addAll("the","dog","amend");
-		/*stats.setOnAction(new EventHandler<ActionEvent>(){
-			@Override
-				public void handle(ActionEvent event){
-					inputFileText.
-				}
-		});*/
-        
+		
+
         //Checker button for second scene
         check.setText("Check for errors");
         gridRight.setConstraints(check,0,2);
-        check.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-                    public void handle(ActionEvent event){
-                      statList.clear();
-                      statsLL=new LinkedList();
-                      
-                      // checking function for spelling errors
-                      
-                    }
-            });
+        
         
         //Back button to file selection
         back.setText("Back to file selection");
         gridRight.setConstraints(back,0,2);
-        back.setTranslateX(120);
         back.setOnAction(new EventHandler<ActionEvent>() {
             @Override
                     public void handle(ActionEvent event){
@@ -191,9 +184,9 @@ public class project7 extends Application {
         
         //adding components to grids
         gridLeft.getChildren().addAll(dictListLabel, dictList,statsLabel,stats );
-        gridRight.getChildren().addAll(inputBox, inputFileText, check, back, quit);
+        gridRight.getChildren().addAll(inputBox, inputFileText, back, quit);
         begin.getChildren().addAll(dictInputLabel, cb, FileLabel, cb2, commit, quit2);
-        
+    
         //adding grids to hbox
         hbox.getChildren().addAll(gridLeft, gridRight);
         init.getChildren().addAll(begin);
@@ -212,39 +205,47 @@ public class project7 extends Application {
             @Override
             public void handle(ActionEvent event) {
                 try{
-                    inputFileText.clear();
+					wrong=0;
+					inputFileText.clear();
                     dictionary.clear();
-                    primaryStage.setScene(scene2);
-                    testIn1=cb.hasProperties();
-                    testIn2=cb2.hasProperties();
-                    System.out.println(testIn1+" "+testIn2);
-                    dictLL=new LinkedList();
-                    
+					wordList.clear();
+					statList.clear();
+					statsLL=new LinkedList();
+					dictLL=new LinkedList();
+					loadNewDictionaryFile(cb.getValue());
+					loadTestFile(cb2.getValue());
+					
+					primaryStage.setScene(scene2);
                                         
-                    if(testIn1==true){
-                        temp=new File(cb.getValue());
-                        Scanner in1=new Scanner(temp);
-                        while(in1.hasNext()){
-                            dictLL.add(in1.next());
-                        }
-                    
-                        for(int i=0;i<dictLL.size();i++){
-                            dictionary.add(dictLL.get(i));
-                            
-                        }
-                    }
-                    
-                    if(testIn2==true){
-                        temp2=new File(cb2.getValue());
-                        Scanner in2=new Scanner(temp2);
-                        for(int j=0;in2.hasNextLine();j++){
-                            inputFileText.appendText(in2.nextLine() + "\n");
-                        }
-                    }                
+                    temp2=new File(cb2.getValue());
+                    Scanner in2=new Scanner(temp2);
+                    for(int j=0;j!=wordList.size();j++){
+						if(wordList.get(j).equals("\n")){
+							inputFileText.appendText(wordList.get(j));
+						}
+						else{
+							inputFileText.appendText((wordList.get(j))+" ");
+						}
+						
+					}
+					
+					for(int i=0; i<statsLL.size();i++){
+						if(statsLL.get(i).equals("\n") || statsLL.get(i).equals("\t") || statsLL.get(i).equals(" ")){
+							statsLL.remove(i);
+						}
+					}
+
+					for(int i=0; i<statsLL.size();i++){
+						statList.add(statsLL.get(i));
+						if(statList.get(i).equals("\n") || statList.get(i).equals("\t") || statList.get(i).equals(" ")){
+							statList.remove(i);
+						}					
+					}
+					             
                 
                 }catch (Exception e)
                 {
-                System.out.println(e);
+                 e.printStackTrace();
                 };
                 
             }
@@ -262,8 +263,72 @@ public class project7 extends Application {
     }
     
     
-    public static void main(String[] args) {
-        launch(args);
-    }
-    
+    public static void main(String[] args) throws Exception {
+		
+		wordList = new Vector<String>();
+		launch(args);
+		
+		
+	}
+	
+	public static void loadTestFile(String name) throws Exception{
+		
+		testFile = new File(name);
+		Scanner in= new Scanner(testFile);
+		String[] userInput;
+		
+		while (in.hasNextLine()){
+			userInput=in.nextLine().split(" ");
+			//wordList.add(userInput);
+			for (int i=0; i<userInput.length;i++){
+				wordList.add(userInput[i]);
+			}
+			wordList.add("\n");
+			
+		}
+
+		System.out.printf("%d entries read%n", wordList.size());
+		statsLL.clear();
+		for (int i=0; i < wordList.size(); i++){
+			System.out.printf("%s_",wordList.get(i));
+					
+			if (!ht.contains(wordList.get(i)) && !wordList.get(i).equals("\n")){
+				if (!wordList.get(i).equals(" ") || !wordList.get(i).equals("\n"))
+				{
+					statsLL.add(ht.preprocess(wordList.get(i)));
+					wrong++;
+				}
+			}
+			//else System.out.println(wordList.get(i)+" was found");
+		}
+		System.out.println("There were "+wrong+" errors found");
+		in.close();
+		
+	}
+	
+	public static void loadNewDictionaryFile(String fname) throws Exception{
+		hashDict= new File(fname);
+		if (hashDict.canRead())
+			ReadDictionaryFile();
+	}
+	public static void ReadDictionaryFile() throws Exception{
+		//Vector<String> temp = new Vector<String>();
+		Scanner in = new Scanner(hashDict);
+		
+		while (in.hasNext())
+			dictLL.add(in.next());
+		in.close();
+		ht = new HashTable(dictLL.size());
+
+		for(int i=0;i<dictLL.size();i++){
+			dictionary.add(dictLL.get(i));
+			
+		}
+		
+		for (int i=0; i < dictLL.size(); ++i){
+			ht.insert(dictLL.get(i));
+		}
+		System.out.printf("%d entries%n", ht.Count());
+	}
+
 }

@@ -1,10 +1,31 @@
 import java.lang.Math;
+import java.util.LinkedList;
+import java.util.HashMap;
 
 public class HashTable{
 	private int num_ele;
-	String[] table;
+	private HashMap<Integer, HashTable.Bucket> map;
 	private int[] powers;
 	private int size;
+	private Bucket newBucket;
+
+
+	private class Bucket{
+		private LinkedList list;
+
+		public Bucket()
+		{
+			list = new LinkedList<String>();
+		}
+		public void add(String toAdd)
+		{
+			list.add(toAdd);
+		}
+		public boolean exists(String toMatch)
+		{
+			return list.contains(toMatch);
+		}
+	}
 
 	public HashTable()
 	{
@@ -20,25 +41,25 @@ public class HashTable{
 
 	private void constructor() //does the actual constructing
 	{
-		table = new String[size];
+		map = new HashMap<Integer,HashTable.Bucket>();
 		num_ele=0;
 		powers= new int[4];
 		powers[0]=29791;
 		powers[1]=961;
 		powers[2]=31;
 		powers[3]=1;
-		for (int i=0; i < size; ++i)
-		{
-			table[i]="";
-		}
 	}
 	public void insert(String toHash)
 	{
-		if (!contains(toHash))
+		int key = hashValue(toHash);
+		if (!map.containsKey(key))
 		{
-			num_ele++;
-			table[hashValue(toHash)] = toHash;
+			newBucket = new Bucket();
+			newBucket.add(toHash);
+			map.put(key, newBucket);
 		}
+		else map.get(key).add(toHash);
+		num_ele++;
 	}
 
 	private int hashValue(String toHash)
@@ -48,7 +69,12 @@ public class HashTable{
 		for (int i=0; i < 4; ++i)
 		{
 			if (i+j >= toHash.length())
-				return Math.abs((int)(result%size));
+			return Math.abs((int)(result%size));
+			if (!Character.isAlphabetic(toHash.charAt(i)))
+			{
+				toHash=toHash.substring(0,i-1);
+				continue;
+			}
 			else result+=(Character.getNumericValue(toHash.charAt(i+j))-10)*powers[i];
 		}
 		return Math.abs((int)(result%size));
@@ -56,7 +82,14 @@ public class HashTable{
 
 	public boolean contains(String toFind)
 	{
-		return table[hashValue(toFind)].isEmpty();
+		int key = hashValue(toFind);
+		if (map.containsKey(key))
+		{
+			if (map.get(key).exists(toFind))
+				return true;
+		}
+		return false;
+
 	}
 
 	public int Count()

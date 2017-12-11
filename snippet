@@ -1,37 +1,40 @@
-loopLabel:
-for (int j=0; j < toHash.length(); j+=4)
+private int hashValue(String toHash)
 {
-	for (int i=0; i < 4; ++i)
+	double result=0;
+	loopLabel:
+	for (int j=0; j < toHash.length(); j+=4)
 	{
-		if (i+j == toHash.length())
-			break loopLabel;
-		result+=(Character.getNumericValue(toHash.charAt(j+i)-9))*powers[i];
-	}
-}
-
-
-result=toHash.charAt(0)*powers[1];
-if (1 < toHash.length())
-	result+=toHash.charAt(1)*powers[2];
-for (int i=1; i < toHash.length(); ++i)
-{
-	result+=(toHash.charAt(i-1)-9)*powers[0]-(toHash.charAt(i)-9)*powers[1];
-	if (i+1 < toHash.length())
-		result+=(toHash.charAt(i+1)-9)*powers[2];
-}
-
-
-for (int i=0; i < toHash.length(); ++i)
-{
-	result+=(toHash.charAt(i)+99)*Math.pow(10, i+1);
-}
-
-toHash=toHash.toLowerCase();
-		for (int i=0; i < toHash.length(); ++i)
+		for (int i=0; i < 4; ++i)
 		{
-			if (!Character.isLetter(toHash.charAt(i)))
-				continue;
-			if (i%2==0)	tempSum=(toHash.charAt(i)+29)*Math.pow(10, i+1);
-			else tempSum=(toHash.charAt(i)*7)*Math.pow(10, i);
-			result+=tempSum;
+			if (i+j == toHash.length())
+				break loopLabel;
+			result+=(Character.getNumericValue(toHash.charAt(j+i)-9))*powers[i];
 		}
+	}
+	return Math.abs((int)(result%size));
+}
+
+private int hashValue(String toHash)
+{
+	double result=0;
+	result=toHash.charAt(0)*powers[1];
+	if (1 < toHash.length())
+		result+=toHash.charAt(1)*powers[2];
+	for (int i=1; i < toHash.length(); ++i)
+	{
+		result+=(toHash.charAt(i-1)-9)*powers[0]-(toHash.charAt(i)-9)*powers[1];
+		if (i+1 < toHash.length())
+			result+=(toHash.charAt(i+1)-9)*powers[2];
+	}
+	return Math.abs((int)(result%size));
+}
+
+private int hashValue(String toHash)
+{
+	double result=0;
+	for (int i=0; i < toHash.length(); ++i)
+	{
+		result+=(toHash.charAt(i)+99)*Math.pow(10, i+1);
+	}
+	return Math.abs((int)(result%size));
+}
